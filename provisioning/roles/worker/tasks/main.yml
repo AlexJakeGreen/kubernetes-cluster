@@ -1,0 +1,16 @@
+---
+
+- name: "Wait for cluster connection info"
+  become: false
+  local_action: wait_for path="./join_command"
+
+- name: "Copy the join command to the server location"
+  copy:
+    src: "{{ playbook_dir }}/join_command"
+    dest: /tmp/join_command.sh
+    mode: '0777'
+
+- name: "Join the node to cluster"
+  shell: sh /tmp/join_command.sh
+  args:
+    creates: /etc/kubernetes/kubelet.conf

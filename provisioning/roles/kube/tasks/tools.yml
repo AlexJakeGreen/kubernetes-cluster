@@ -1,0 +1,59 @@
+---
+
+- name: Add kubernetes repo
+  copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo owner=root group=root mode=0644
+
+- name: Disable SELinux
+  selinux:
+    policy: targeted
+    state: permissive
+    # state: disabled
+
+- name: Disable swap
+  shell: swapoff -a
+  when: ansible_swaptotal_mb > 0
+  # changed_when: false
+
+- name: Disable swap in fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+  # replace:
+  #   path: /etc/fstab
+  #   regexp: '^(/swapfile\s.*)$'
+  #   replace: '# \1'
+
+- name: Install packages
+  yum:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    disable_excludes: kubernetes
+
+- name: net.bridge.bridge-nf-call-ip6tables -> 1
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: net.bridge.bridge-nf-call-iptables -> 1
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Ensure kubelet is running
+  service:
+    name: kubelet
+    state: started
+    enabled: true

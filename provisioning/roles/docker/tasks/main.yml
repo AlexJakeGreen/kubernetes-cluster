@@ -1,0 +1,45 @@
+---
+
+- name: "Install Prerequisites"
+  yum:
+    name:
+      - vim
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+    update_cache: True
+
+- name: "Add docker repository"
+  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+
+- name: "Install docker package"
+  yum:
+    name: docker-ce
+    state: present
+
+- name: "Create docker config directory"
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Ensure docker config exists
+  copy: src=daemon.json dest=/etc/docker/daemon.json owner=root group=root mode=0644
+  notify:
+    - restart docker
+
+- name: Add vagrant user into docker group
+  user:
+    name: vagrant
+    groups: docker
+
+- meta: flush_handlers
+
+- name: Ensure docker is running
+  service:
+    name: docker
+    state: started
+    enabled: true

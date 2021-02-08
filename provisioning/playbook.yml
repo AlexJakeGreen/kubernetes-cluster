@@ -1,0 +1,17 @@
+---
+
+- hosts: all
+  become: true
+  roles:
+    - docker
+    - kube
+
+- hosts: control
+  become: true
+  roles:
+    - control
+
+- hosts: worker_hosts
+  become: true
+  roles:
+    - worker

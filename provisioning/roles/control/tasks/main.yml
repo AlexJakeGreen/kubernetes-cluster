@@ -1,0 +1,39 @@
+---
+
+- name: "Check cluster token status"
+  shell: "kubeadm token create --print-join-command &> /dev/null"
+  register: cluster_token_status
+  ignore_errors: true
+  no_log: true
+
+- name: "Initialize the cluster"
+  shell: kubeadm init --apiserver-advertise-address="192.168.20.10" --apiserver-cert-extra-sans="192.168.20.10"  --node-name control --pod-network-cidr=192.168.0.0/16 --token=abcdef.0123456789abcdef --token-ttl=1h
+  when: cluster_token_status.rc != 0
+
+- name: "Setup kube config direcory for user vagrant"
+  become: false
+  file:
+    path: "/home/vagrant/.kube"
+    state: directory
+
+- name: "Setup kube config for user vagrant"
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    remote_src: true
+    owner: vagrant
+    group: vagrant
+    mode: '0400'
+
+- name: "Setup Weave networking"
+  become: false
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  when: cluster_token_status.rc != 0
+
+- name: "Generate join command"
+  shell: kubeadm token create --print-join-command
+  register: join_command
+
+- name: "Store join command locally"
+  become: false
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join_command"

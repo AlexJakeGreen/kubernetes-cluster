@@ -52,6 +52,11 @@
     state: present
     reload: true
 
+- name: Enable kubectl completion for bash
+  shell: "kubectl completion bash >/etc/bash_completion.d/kubectl"
+  args:
+    creates: /etc/bash_completion.d/kubectl
+
 - name: Ensure kubelet is running
   service:
     name: kubelet

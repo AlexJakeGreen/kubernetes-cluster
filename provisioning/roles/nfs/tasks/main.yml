@@ -1,0 +1,32 @@
+---
+
+- name: "Install Prerequisites"
+  yum:
+    name:
+      - nfs-utils
+    state: present
+
+- name: "Ensure shared directory exists"
+  file:
+    path: /var/nfsshare
+    state: directory
+    owner: nfsnobody
+    group: nfsnobody
+    mode: '0755'
+
+- name: "Define sharing points"
+  copy:
+    dest: /etc/exports
+    content: |
+      /var/nfsshare *(rw,sync,no_root_squash,no_all_squash)
+
+- name: Ensure services are enabled and running
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - rpcbind
+    - nfs-server
+    - nfs-lock
+    - nfs-idmap

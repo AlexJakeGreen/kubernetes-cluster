@@ -8,7 +8,7 @@
 
 - name: "Initialize the cluster"
   # shell: kubeadm init --apiserver-advertise-address="192.168.20.10" --apiserver-cert-extra-sans="192.168.20.10"  --node-name control --pod-network-cidr=192.168.0.0/16 --token=abcdef.0123456789abcdef --token-ttl=1h
-  shell: kubeadm init
+  shell: kubeadm init  --token-ttl=1h
   when: cluster_token_status.rc != 0
 
 - name: "Setup kube config direcory for user vagrant"

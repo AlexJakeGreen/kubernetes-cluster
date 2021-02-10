@@ -1,0 +1,8 @@
+---
+
+- hosts: kube-control
+  become: true
+  roles:
+    - docker
+    - kube
+    - control

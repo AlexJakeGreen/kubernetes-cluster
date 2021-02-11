@@ -17,9 +17,21 @@ spec:
         app: petclinic
         tier: mysql
     spec:
+      tolerations:
+          - effect: NoExecute
+            key: node.kubernetes.io/not-ready
+            operator: Exists
+            tolerationSeconds: 30
+          - effect: NoExecute
+            key: node.kubernetes.io/unreachable
+            operator: Exists
+            tolerationSeconds: 30
       containers:
         - image: mysql:5.6
           name: mysql
+          resources:
+            limits:
+              memory: "512M"
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -29,6 +41,17 @@ spec:
           ports:
             - containerPort: 3306
               name: mysql
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql

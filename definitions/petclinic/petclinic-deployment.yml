@@ -20,9 +20,31 @@ spec:
       containers:
         - image: arey/springboot-petclinic
           name: petclinic
+          resources:
+            limits:
+              memory: "512M"
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: mysql
           ports:
             - containerPort: 8080
               name: petclinic
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      tolerations:
+          - effect: NoExecute
+            key: node.kubernetes.io/not-ready
+            operator: Exists
+            tolerationSeconds: 30
+          - effect: NoExecute
+            key: node.kubernetes.io/unreachable
+            operator: Exists
+            tolerationSeconds: 30

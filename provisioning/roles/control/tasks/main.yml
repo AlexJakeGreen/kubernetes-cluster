@@ -38,3 +38,10 @@
 - name: "Store join command locally"
   become: false
   local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join_command"
+
+- name: Add bash aliases
+  copy: src=99-aliases.sh dest=/etc/profile.d/99-aliases.sh owner=root group=root mode=0644
+
+- name: Add complete alias script
+  # https://github.com/cykerway/complete-alias
+  copy: src=complete_alias dest=/etc/bash_completion.d/complete_alias owner=root group=root mode=0644

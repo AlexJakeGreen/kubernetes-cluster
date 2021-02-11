@@ -43,9 +43,9 @@ Vagrant.configure("2") do |config|
   end
 
   # NFS server node
-  config.vm.define :nfs, autostart: false do |m|
+  config.vm.define 'nfs-server', autostart: false do |m|
     m.vm.network :private_network, ip: "192.168.20.50"
-    m.vm.hostname = "nfs"
+    m.vm.hostname = 'nfs-server'
     m.vm.provider :libvirt do |vb|
       vb.cpus = 1
       vb.memory = 1024

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  labels:
+    app: petclinic
+spec:
+  selector:
+    matchLabels:
+      app: petclinic
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: petclinic
+        tier: frontend
+    spec:
+      containers:
+        - image: arey/springboot-petclinic
+          name: petclinic
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: mysql
+          ports:
+            - containerPort: 8080
+              name: petclinic

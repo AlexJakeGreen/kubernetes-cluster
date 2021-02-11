@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-petclinic
+  labels:
+    app: petclinic
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: petclinic
+    tier: mysql
+  clusterIP: None
